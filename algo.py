@@ -1,6 +1,9 @@
 import csv 
 import requests
 import json
+import math
+import os
+
 
 def dataset_list(search):
     File = open("dataset.csv","r",newline="")
@@ -67,17 +70,101 @@ def get_route_instructions(start_lat, start_lon, dest_lat, dest_lon):
     except (KeyError, IndexError):
         print("Could not parse the route from the API response. The data format may have changed.")
         return []
+
+def calculate_haversine_distance(lat1, lon1, lat2, lon2):
+    R = 6371  # Radius of Earth in kilometers
+    
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lon2 - lon1)
+    
+    # Haversine formula calculation
+    a = math.sin(delta_phi / 2.0)**2 + \
+        math.cos(phi1) * math.cos(phi2) * \
+        math.sin(delta_lambda / 2.0)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    distance = R * c
+    return distance
+    
+def find_nearest_destination(user_lat, user_lon, file_path):
+    """
+    Returns:
+        dict: A dictionary containing the details of the nearest destination
+              (id, name, lat, lon, distance_km). Returns None if the file
+              is not found or is empty.
+    """
+    if not os.path.exists(file_path):
+        print(f"Error: The file '{file_path}' was not found.")
+        return None
+
+    nearest_destination = None
+    min_distance = float('inf')
+
+    try:
+        with open(file_path, mode='r', encoding='utf-8') as infile:
+            reader = csv.reader(infile)
+            header = next(reader) 
+            
+            for row in reader:
+                try:
+                    if len(row) < 4:
+                        continue #for invariant datasets
+                        
+                    dest_id, dest_lat, dest_lon, dest_name = row
+                    dest_lat, dest_lon = float(dest_lat), float(dest_lon)
+
+                    distance = calculate_haversine_distance(
+                        user_lat, user_lon, dest_lat, dest_lon
+                    )
+
+                    if distance < min_distance:
+                        min_distance = distance
+                        nearest_destination = {
+                            "id": dest_id,
+                            "name": dest_name,
+                            "lat": dest_lat,
+                            "lon": dest_lon,
+                            "distance_km": round(min_distance, 2)
+                        }
+                except (ValueError, IndexError) as e:
+                    print(f"Skipping malformed row: {row}. Error: {e}")
+                    continue
+
+    except Exception as e:
+        print(f"An error occurred while reading the file: {e}")
+        return None
+
+    return nearest_destination
     
 
 if __name__ == "__main__":
     user_lat = None
     user_long = None #to be fed using neo6m
-    search = str=input("Enter the place where you want to go")
-    destination = dataset_list(search) #this to be replaced with the algorithm of finding the closest to the longitude and latitude
+    csv_file_name = r"dataset.csv"
+    
+    print(f"Searching for the nearest destination to your location ({user_lat}, {user_long})...")
+    
+    # 3. Call the function to find the nearest destination
+    nearest = find_nearest_destination(user_lat, user_long, csv_file_name)
+    
+    destination = dataset_list(nearest) 
+    
     for elb in destination:
         selected_lat = elb[1]
         selected_long = elb[2]
     
+    if nearest:
+        print("\n--- Nearest Destination Found ---")
+        print(f"Name: {nearest['name']}")
+        print(f"Latitude: {nearest['lat']}")
+        print(f"Longitude: {nearest['lon']}")
+        print(f"Distance: {nearest['distance_km']} km away")
+        print("---------------------------------")
+    else:
+        print("\nCould not determine the nearest destination.")
+
 
     route_steps = get_route_instructions(
         user_lat,
