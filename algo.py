@@ -89,12 +89,6 @@ def calculate_haversine_distance(lat1, lon1, lat2, lon2):
     return distance
     
 def find_nearest_destination(user_lat, user_lon, file_path):
-    """
-    Returns:
-        dict: A dictionary containing the details of the nearest destination
-              (id, name, lat, lon, distance_km). Returns None if the file
-              is not found or is empty.
-    """
     if not os.path.exists(file_path):
         print(f"Error: The file '{file_path}' was not found.")
         return None
