@@ -148,24 +148,66 @@ const devicesData = [
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Application initializing...');
     
-    // Initialize data
-    allDevices = [...devicesData];
-    filteredDevices = [...allDevices];
-    
-    // Ensure message overlay is hidden on init
-    const messageOverlay = document.getElementById('message-overlay');
-    const confirmDialog = document.getElementById('confirm-dialog');
-    if (messageOverlay) {
-        messageOverlay.classList.add('hidden');
+    try {
+        // Initialize data
+        allDevices = [...devicesData];
+        filteredDevices = [...allDevices];
+        
+        // Ensure message overlay is hidden on init
+        const messageOverlay = document.getElementById('message-overlay');
+        const confirmDialog = document.getElementById('confirm-dialog');
+        if (messageOverlay) {
+            messageOverlay.classList.add('hidden');
+        }
+        if (confirmDialog) {
+            confirmDialog.classList.add('hidden');
+        }
+        
+        // Show landing page
+        showPage('landing');
+        
+        // Bind navigation events
+        bindNavigationEvents();
+        
+        console.log('Application initialized successfully');
+    } catch (error) {
+        console.error('Error during initialization:', error);
     }
-    if (confirmDialog) {
-        confirmDialog.classList.add('hidden');
-    }
-    
-    // Show landing page
-    showPage('landing');
-    console.log('Application initialized successfully');
 });
+
+// Bind navigation events
+function bindNavigationEvents() {
+    try {
+        // Get Started button
+        const getStartedBtn = document.querySelector('.get-started-btn');
+        if (getStartedBtn) {
+            getStartedBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Get Started clicked');
+                navigateToSignIn();
+            });
+        }
+        
+        // Back to Home buttons
+        const backButtons = document.querySelectorAll('[onclick="navigateToLanding()"]');
+        backButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToLanding();
+            });
+        });
+        
+        // Sign in form
+        const signInForm = document.querySelector('.signin-form');
+        if (signInForm) {
+            signInForm.addEventListener('submit', handleSignIn);
+        }
+        
+        console.log('Navigation events bound successfully');
+    } catch (error) {
+        console.error('Error binding navigation events:', error);
+    }
+}
 
 // Page Navigation Functions
 function showPage(pageId) {
@@ -176,7 +218,6 @@ function showPage(pageId) {
         const pages = document.querySelectorAll('.page');
         pages.forEach(page => {
             page.classList.remove('active');
-            console.log(`Hiding page: ${page.id}`);
         });
         
         // Show target page
@@ -198,28 +239,28 @@ function showPage(pageId) {
     }
 }
 
-// Global navigation functions - ensuring they're available
-window.navigateToSignIn = function() {
+// Global navigation functions
+function navigateToSignIn() {
     try {
-        console.log('Navigate to Sign In clicked');
+        console.log('Navigate to Sign In');
         showPage('signin');
     } catch (error) {
         console.error('Error navigating to sign in:', error);
     }
-};
+}
 
-window.navigateToLanding = function() {
+function navigateToLanding() {
     try {
-        console.log('Navigate to Landing clicked');
+        console.log('Navigate to Landing');
         showPage('landing');
     } catch (error) {
         console.error('Error navigating to landing:', error);
     }
-};
+}
 
-window.navigateToDashboard = function() {
+function navigateToDashboard() {
     try {
-        console.log('Navigate to Dashboard clicked');
+        console.log('Navigate to Dashboard');
         if (currentUser) {
             showPage('dashboard');
         } else {
@@ -228,10 +269,15 @@ window.navigateToDashboard = function() {
     } catch (error) {
         console.error('Error navigating to dashboard:', error);
     }
-};
+}
+
+// Make functions globally available
+window.navigateToSignIn = navigateToSignIn;
+window.navigateToLanding = navigateToLanding;
+window.navigateToDashboard = navigateToDashboard;
 
 // Authentication Functions
-window.handleSignIn = function(event) {
+function handleSignIn(event) {
     event.preventDefault();
     
     try {
@@ -261,9 +307,9 @@ window.handleSignIn = function(event) {
         console.error('Error in handleSignIn:', error);
         showMessage('An error occurred during sign in. Please try again.', 'error');
     }
-};
+}
 
-window.handleLogout = function() {
+function handleLogout() {
     try {
         console.log('Logout clicked');
         currentUser = null;
@@ -276,7 +322,11 @@ window.handleLogout = function() {
     } catch (error) {
         console.error('Error in handleLogout:', error);
     }
-};
+}
+
+// Make functions globally available
+window.handleSignIn = handleSignIn;
+window.handleLogout = handleLogout;
 
 // Dashboard Functions
 function initializeDashboard() {
@@ -331,7 +381,7 @@ function updateDeviceStats() {
     }
 }
 
-window.openGoogleMaps = function(deviceId) {
+function openGoogleMaps(deviceId) {
     try {
         console.log(`Opening Google Maps for device: ${deviceId}`);
         const device = allDevices.find(d => d.id === deviceId);
@@ -343,7 +393,10 @@ window.openGoogleMaps = function(deviceId) {
     } catch (error) {
         console.error('Error opening Google Maps:', error);
     }
-};
+}
+
+// Make function globally available
+window.openGoogleMaps = openGoogleMaps;
 
 function renderDevices() {
     try {
@@ -434,7 +487,7 @@ function renderMapMarkers() {
 }
 
 // Filter and Search Functions
-window.filterDevices = function() {
+function filterDevices() {
     try {
         const searchInput = document.getElementById('device-search');
         const statusFilter = document.getElementById('status-filter');
@@ -459,10 +512,13 @@ window.filterDevices = function() {
     } catch (error) {
         console.error('Error filtering devices:', error);
     }
-};
+}
+
+// Make function globally available
+window.filterDevices = filterDevices;
 
 // Device Management Functions
-window.toggleDeviceStatus = function(deviceId) {
+function toggleDeviceStatus(deviceId) {
     try {
         console.log(`Toggling status for device: ${deviceId}`);
         const device = allDevices.find(d => d.id === deviceId);
@@ -481,9 +537,9 @@ window.toggleDeviceStatus = function(deviceId) {
     } catch (error) {
         console.error('Error toggling device status:', error);
     }
-};
+}
 
-window.confirmDeleteDevice = function(deviceId) {
+function confirmDeleteDevice(deviceId) {
     try {
         console.log(`Confirming delete for device: ${deviceId}`);
         const device = allDevices.find(d => d.id === deviceId);
@@ -507,9 +563,9 @@ window.confirmDeleteDevice = function(deviceId) {
     } catch (error) {
         console.error('Error showing confirmation dialog:', error);
     }
-};
+}
 
-window.deleteDevice = function(deviceId) {
+function deleteDevice(deviceId) {
     try {
         console.log(`Deleting device: ${deviceId}`);
         // Remove device from arrays
@@ -526,9 +582,9 @@ window.deleteDevice = function(deviceId) {
     } catch (error) {
         console.error('Error deleting device:', error);
     }
-};
+}
 
-window.updateMap = function() {
+function updateMap() {
     try {
         console.log('Updating map...');
         const mapGrid = document.getElementById('map-grid');
@@ -566,10 +622,16 @@ window.updateMap = function() {
     } catch (error) {
         console.error('Error updating map:', error);
     }
-};
+}
+
+// Make functions globally available
+window.toggleDeviceStatus = toggleDeviceStatus;
+window.confirmDeleteDevice = confirmDeleteDevice;
+window.deleteDevice = deleteDevice;
+window.updateMap = updateMap;
 
 // Dialog Functions
-window.hideConfirmDialog = function() {
+function hideConfirmDialog() {
     try {
         const confirmDialog = document.getElementById('confirm-dialog');
         if (confirmDialog) {
@@ -578,7 +640,10 @@ window.hideConfirmDialog = function() {
     } catch (error) {
         console.error('Error hiding confirm dialog:', error);
     }
-};
+}
+
+// Make function globally available
+window.hideConfirmDialog = hideConfirmDialog;
 
 // Utility Functions
 function formatDate(dateString) {
@@ -618,7 +683,7 @@ function showMessage(text, type = 'info') {
     }
 }
 
-window.hideMessage = function() {
+function hideMessage() {
     try {
         const overlay = document.getElementById('message-overlay');
         if (overlay) {
@@ -627,7 +692,10 @@ window.hideMessage = function() {
     } catch (error) {
         console.error('Error hiding message:', error);
     }
-};
+}
+
+// Make functions globally available
+window.hideMessage = hideMessage;
 
 // Auto-refresh functionality
 let autoRefreshInterval = null;

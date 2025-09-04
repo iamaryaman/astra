@@ -837,6 +837,54 @@ select.form-control {
   margin: 0 auto;
 }
 
+/* Astra Logo Container Styles */
+.astra-logo-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+.astra-logo-box {
+  width: 520px;
+  height: 320px;
+  aspect-ratio: 1/1;
+  background: var(--color-surface);
+  border: 2px solid var(--color-card-border);
+  padding: var(--space-16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--duration-normal) var(--ease-standard);
+}
+
+.astra-logo-box:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+}
+
+.astra-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+
+.astra-logo-text {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  letter-spacing: 2px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
 .hero-title {
   font-size: 3.5rem;
   font-weight: var(--font-weight-bold);
@@ -1311,6 +1359,16 @@ select.form-control {
     align-items: center;
   }
 
+  .astra-logo-box {
+    width: 100px;
+    height: 100px;
+    padding: var(--space-12);
+  }
+
+  .astra-logo-text {
+    font-size: var(--font-size-xl);
+  }
+
   .dashboard-controls {
     grid-template-columns: 1fr;
     gap: var(--space-16);
@@ -1369,6 +1427,16 @@ select.form-control {
 
   .hero-title {
     font-size: 2rem;
+  }
+
+  .astra-logo-box {
+    width: 80px;
+    height: 80px;
+    padding: var(--space-8);
+  }
+
+  .astra-logo-text {
+    font-size: var(--font-size-lg);
   }
 
   .dialog-actions {
