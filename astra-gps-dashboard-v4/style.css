@@ -164,8 +164,8 @@
     --color-bg-8: rgba(8, 145, 178, 0.15); /* Dark cyan */
     
     /* Semantic Color Tokens (Dark Mode) */
-    --color-background: var(--color-charcoal-700);
-    --color-surface: var(--color-charcoal-800);
+    --color-background: var(--color-black);
+    --color-surface: #15141480;
     --color-text: var(--color-gray-200);
     --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
     --color-primary: var(--color-teal-300);
@@ -413,16 +413,17 @@ pre code {
 }
 
 .btn--primary {
-  background: var(--color-primary);
-  color: var(--color-btn-primary-text);
+  background: #7a161c;
+  color: white;
+  font-weight: bold;
 }
 
 .btn--primary:hover {
-  background: var(--color-primary-hover);
+  background: red;
 }
 
 .btn--primary:active {
-  background: var(--color-primary-active);
+  background: red;
 }
 
 .btn--secondary {
@@ -693,26 +694,6 @@ select.form-control {
   padding-right: var(--space-8);
 }
 
-.astra-logo-wrap {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  padding-bottom: 16px;
-}
-
-.astra-logo-box {
-  width: 520px;
-  height: 320px;
-  aspect-ratio: 1/1;
-  background: var(--color-surface);
-  border: 2px solid var(--color-card-border);
-  padding: var(--space-16);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: all var(--duration-normal) var(--ease-standard);
-}
 
 .astra-logo-box:hover {
   box-shadow: var(--shadow-md);
@@ -934,7 +915,7 @@ select.form-control {
 
 /* Landing Page Styles */
 .landing-header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-teal-700) 100%);
+  background: linear-gradient(135deg, #7a161c 0%, #7a161c 100%);
   color: var(--color-cream-50);
 }
 
@@ -982,21 +963,25 @@ select.form-control {
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 16.5rem;
+  font-family: 'Times New Roman', Times, serif;
+  font-style:italic;
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
   margin-bottom: var(--space-16);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-teal-700));
+  background: linear-gradient(135deg, #7a161c, #7a161c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .hero-subtitle {
-  font-size: var(--font-size-xl);
-  color: var(--color-text-secondary);
+  font-size: 35px;
+  color: #7a161c;
+  font-family: 'Times New Roman', Times, serif;
+  font-style: italic;
   margin-bottom: var(--space-20);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
 }
 
 .hero-description {
@@ -1028,7 +1013,7 @@ select.form-control {
 }
 
 .feature-card {
-  background: var(--color-surface);
+  background: #15141480;
   border: 1px solid var(--color-card-border);
   border-radius: var(--radius-lg);
   padding: var(--space-24);
