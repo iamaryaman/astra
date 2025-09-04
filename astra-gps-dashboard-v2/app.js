@@ -146,61 +146,80 @@ const devicesData = [
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Application initializing...');
+    
     // Initialize data
     allDevices = [...devicesData];
     filteredDevices = [...allDevices];
     
     // Ensure message overlay is hidden on init
     const messageOverlay = document.getElementById('message-overlay');
+    const confirmDialog = document.getElementById('confirm-dialog');
     if (messageOverlay) {
         messageOverlay.classList.add('hidden');
+    }
+    if (confirmDialog) {
+        confirmDialog.classList.add('hidden');
     }
     
     // Show landing page
     showPage('landing');
+    console.log('Application initialized successfully');
 });
 
 // Page Navigation Functions
 function showPage(pageId) {
     try {
-        // Hide all pages
+        console.log(`Navigating to page: ${pageId}`);
+        
+        // Hide all pages first
         const pages = document.querySelectorAll('.page');
-        pages.forEach(page => page.classList.remove('active'));
+        pages.forEach(page => {
+            page.classList.remove('active');
+            console.log(`Hiding page: ${page.id}`);
+        });
         
         // Show target page
         const targetPage = document.getElementById(`${pageId}-page`);
         if (targetPage) {
             targetPage.classList.add('active');
             currentPage = pageId;
+            console.log(`Showing page: ${targetPage.id}`);
             
             // Initialize page-specific content
             if (pageId === 'dashboard') {
                 initializeDashboard();
             }
+        } else {
+            console.error(`Page not found: ${pageId}-page`);
         }
     } catch (error) {
         console.error('Error in showPage:', error);
     }
 }
 
-function navigateToSignIn() {
+// Global navigation functions - ensuring they're available
+window.navigateToSignIn = function() {
     try {
+        console.log('Navigate to Sign In clicked');
         showPage('signin');
     } catch (error) {
         console.error('Error navigating to sign in:', error);
     }
-}
+};
 
-function navigateToLanding() {
+window.navigateToLanding = function() {
     try {
+        console.log('Navigate to Landing clicked');
         showPage('landing');
     } catch (error) {
         console.error('Error navigating to landing:', error);
     }
-}
+};
 
-function navigateToDashboard() {
+window.navigateToDashboard = function() {
     try {
+        console.log('Navigate to Dashboard clicked');
         if (currentUser) {
             showPage('dashboard');
         } else {
@@ -209,21 +228,25 @@ function navigateToDashboard() {
     } catch (error) {
         console.error('Error navigating to dashboard:', error);
     }
-}
+};
 
 // Authentication Functions
-function handleSignIn(event) {
+window.handleSignIn = function(event) {
     event.preventDefault();
     
     try {
+        console.log('Sign in form submitted');
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
+        
+        console.log(`Attempting login with username: ${username}`);
         
         // Validate credentials against mock data
         const user = mockUsers.find(u => u.username === username && u.password === password);
         
         if (user) {
             currentUser = user.username;
+            console.log(`Login successful for: ${currentUser}`);
             showMessage('Sign in successful! Redirecting to dashboard...', 'success');
             
             setTimeout(() => {
@@ -231,16 +254,18 @@ function handleSignIn(event) {
                 navigateToDashboard();
             }, 1500);
         } else {
+            console.log('Login failed - invalid credentials');
             showMessage('Invalid username or password. Please check demo credentials.', 'error');
         }
     } catch (error) {
         console.error('Error in handleSignIn:', error);
         showMessage('An error occurred during sign in. Please try again.', 'error');
     }
-}
+};
 
-function handleLogout() {
+window.handleLogout = function() {
     try {
+        console.log('Logout clicked');
         currentUser = null;
         showMessage('Logged out successfully', 'success');
         
@@ -251,11 +276,12 @@ function handleLogout() {
     } catch (error) {
         console.error('Error in handleLogout:', error);
     }
-}
+};
 
 // Dashboard Functions
 function initializeDashboard() {
     try {
+        console.log('Initializing dashboard...');
         if (!currentUser) {
             navigateToLanding();
             return;
@@ -284,6 +310,7 @@ function initializeDashboard() {
         
         // Start auto-refresh
         startAutoRefresh();
+        console.log('Dashboard initialized successfully');
     } catch (error) {
         console.error('Error initializing dashboard:', error);
     }
@@ -304,6 +331,20 @@ function updateDeviceStats() {
     }
 }
 
+window.openGoogleMaps = function(deviceId) {
+    try {
+        console.log(`Opening Google Maps for device: ${deviceId}`);
+        const device = allDevices.find(d => d.id === deviceId);
+        if (device) {
+            const googleMapsUrl = `https://www.google.com/maps?q=${device.location.lat},${device.location.lng}`;
+            window.open(googleMapsUrl, '_blank');
+            showMessage(`Opening location for ${device.deviceName} on Google Maps`, 'info');
+        }
+    } catch (error) {
+        console.error('Error opening Google Maps:', error);
+    }
+};
+
 function renderDevices() {
     try {
         const devicesGrid = document.getElementById('devices-grid');
@@ -321,7 +362,7 @@ function renderDevices() {
         }
         
         devicesGrid.innerHTML = filteredDevices.map(device => `
-            <div class="device-card">
+            <div class="device-card" onclick="openGoogleMaps('${device.id}')">
                 <div class="device-header">
                     <div class="device-info">
                         <h4>${device.deviceName}</h4>
@@ -361,12 +402,12 @@ function renderDevices() {
                     </div>
                 </div>
                 
-                <div class="device-actions">
-                    <button class="btn btn--outline btn--sm" onclick="viewDeviceDetails('${device.id}')">
-                        View Details
+                <div class="device-actions" onclick="event.stopPropagation()">
+                    <button class="btn btn--toggle btn--sm ${device.status === 'inactive' ? 'inactive' : ''}" onclick="toggleDeviceStatus('${device.id}')">
+                        ${device.status === 'active' ? 'Deactivate' : 'Activate'}
                     </button>
-                    <button class="btn btn--danger btn--sm" onclick="deactivateDevice('${device.id}')">
-                        Deactivate
+                    <button class="btn btn--danger btn--sm" onclick="confirmDeleteDevice('${device.id}')">
+                        Delete
                     </button>
                 </div>
             </div>
@@ -382,7 +423,7 @@ function renderMapMarkers() {
         if (!mapGrid) return;
         
         mapGrid.innerHTML = filteredDevices.map(device => `
-            <div class="map-marker ${device.status}" onclick="highlightDevice('${device.id}')" title="${device.deviceName} - ${device.userName}">
+            <div class="map-marker ${device.status}" onclick="openGoogleMaps('${device.id}')" title="${device.deviceName} - ${device.userName} (Click to view on Google Maps)">
                 <div class="marker-id">${device.id}</div>
                 <div class="marker-status">${device.status}</div>
             </div>
@@ -393,7 +434,7 @@ function renderMapMarkers() {
 }
 
 // Filter and Search Functions
-function filterDevices() {
+window.filterDevices = function() {
     try {
         const searchInput = document.getElementById('device-search');
         const statusFilter = document.getElementById('status-filter');
@@ -418,73 +459,78 @@ function filterDevices() {
     } catch (error) {
         console.error('Error filtering devices:', error);
     }
-}
+};
 
 // Device Management Functions
-function viewDeviceDetails(deviceId) {
+window.toggleDeviceStatus = function(deviceId) {
     try {
+        console.log(`Toggling status for device: ${deviceId}`);
         const device = allDevices.find(d => d.id === deviceId);
         if (device) {
-            showMessage(`
-                <strong>${device.deviceName}</strong><br>
-                Owner: ${device.userName}<br>
-                Status: ${device.status}<br>
-                Location: ${device.location.lat.toFixed(4)}, ${device.location.lng.toFixed(4)}<br>
-                Emergency: ${device.emergencyContact.phone}
-            `, 'info');
-        }
-    } catch (error) {
-        console.error('Error viewing device details:', error);
-    }
-}
-
-function deactivateDevice(deviceId) {
-    try {
-        if (confirm('Are you sure you want to deactivate this device? This action cannot be undone.')) {
-            // Remove device from arrays
-            allDevices = allDevices.filter(device => device.id !== deviceId);
-            filteredDevices = filteredDevices.filter(device => device.id !== deviceId);
+            const newStatus = device.status === 'active' ? 'inactive' : 'active';
+            device.status = newStatus;
+            device.lastUpdate = new Date().toISOString();
             
-            // Update display
+            // Update displays
             updateDeviceStats();
             renderDevices();
             renderMapMarkers();
             
-            showMessage(`Device ${deviceId} has been successfully deactivated and removed.`, 'success');
+            showMessage(`Device ${deviceId} status changed to ${newStatus}`, 'success');
         }
     } catch (error) {
-        console.error('Error deactivating device:', error);
+        console.error('Error toggling device status:', error);
     }
-}
+};
 
-function highlightDevice(deviceId) {
+window.confirmDeleteDevice = function(deviceId) {
     try {
-        // Remove existing highlights
-        document.querySelectorAll('.device-card').forEach(card => {
-            card.style.border = '';
-        });
-        
-        // Find and highlight the device card
-        const deviceCards = document.querySelectorAll('.device-card');
-        deviceCards.forEach(card => {
-            const deviceIdElement = card.querySelector('.device-id');
-            if (deviceIdElement && deviceIdElement.textContent === deviceId) {
-                card.style.border = '2px solid var(--color-primary)';
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-        
+        console.log(`Confirming delete for device: ${deviceId}`);
         const device = allDevices.find(d => d.id === deviceId);
         if (device) {
-            showMessage(`Selected: ${device.deviceName} (${device.userName})`, 'info');
+            const confirmDialog = document.getElementById('confirm-dialog');
+            const confirmText = document.getElementById('confirm-text');
+            const confirmYes = document.getElementById('confirm-yes');
+            
+            if (confirmDialog && confirmText && confirmYes) {
+                confirmText.innerHTML = `Are you sure you want to permanently delete <strong>${device.deviceName}</strong>?<br>This action cannot be undone.`;
+                
+                // Remove existing click handlers
+                confirmYes.onclick = null;
+                
+                // Add new click handler
+                confirmYes.onclick = () => deleteDevice(deviceId);
+                
+                confirmDialog.classList.remove('hidden');
+            }
         }
     } catch (error) {
-        console.error('Error highlighting device:', error);
+        console.error('Error showing confirmation dialog:', error);
     }
-}
+};
 
-function updateMap() {
+window.deleteDevice = function(deviceId) {
     try {
+        console.log(`Deleting device: ${deviceId}`);
+        // Remove device from arrays
+        allDevices = allDevices.filter(device => device.id !== deviceId);
+        filteredDevices = filteredDevices.filter(device => device.id !== deviceId);
+        
+        // Update display
+        updateDeviceStats();
+        renderDevices();
+        renderMapMarkers();
+        
+        hideConfirmDialog();
+        showMessage(`Device ${deviceId} has been permanently deleted.`, 'success');
+    } catch (error) {
+        console.error('Error deleting device:', error);
+    }
+};
+
+window.updateMap = function() {
+    try {
+        console.log('Updating map...');
         const mapGrid = document.getElementById('map-grid');
         const updateButton = document.querySelector('[onclick="updateMap()"]');
         
@@ -520,7 +566,19 @@ function updateMap() {
     } catch (error) {
         console.error('Error updating map:', error);
     }
-}
+};
+
+// Dialog Functions
+window.hideConfirmDialog = function() {
+    try {
+        const confirmDialog = document.getElementById('confirm-dialog');
+        if (confirmDialog) {
+            confirmDialog.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error('Error hiding confirm dialog:', error);
+    }
+};
 
 // Utility Functions
 function formatDate(dateString) {
@@ -549,8 +607,8 @@ function showMessage(text, type = 'info') {
         messageText.innerHTML = text;
         overlay.classList.remove('hidden');
         
-        // Auto-hide success messages
-        if (type === 'success') {
+        // Auto-hide success and info messages
+        if (type === 'success' || type === 'info') {
             setTimeout(() => {
                 hideMessage();
             }, 3000);
@@ -560,7 +618,7 @@ function showMessage(text, type = 'info') {
     }
 }
 
-function hideMessage() {
+window.hideMessage = function() {
     try {
         const overlay = document.getElementById('message-overlay');
         if (overlay) {
@@ -569,7 +627,7 @@ function hideMessage() {
     } catch (error) {
         console.error('Error hiding message:', error);
     }
-}
+};
 
 // Auto-refresh functionality
 let autoRefreshInterval = null;
@@ -616,9 +674,10 @@ function stopAutoRefresh() {
 // Event Listeners
 document.addEventListener('keydown', function(event) {
     try {
-        // ESC to close message overlay
+        // ESC to close message overlay or confirm dialog
         if (event.key === 'Escape') {
             hideMessage();
+            hideConfirmDialog();
         }
         
         // Ctrl+/ for search focus (dashboard only)

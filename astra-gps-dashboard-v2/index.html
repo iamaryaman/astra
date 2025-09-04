@@ -26,7 +26,7 @@
         <main class="landing-main">
             <div class="container">
                 <section class="hero">
-                    <div class="hero-content">
+                    <div class="hero-content-centered">
                         <h1 class="hero-title">Track, Monitor & Protect</h1>
                         <h2 class="hero-subtitle">Advanced GPS Solutions for Modern Security</h2>
                         <p class="hero-description">
@@ -39,15 +39,6 @@
                                 Get Started
                             </button>
                             <button class="btn btn--outline btn--lg">Learn More</button>
-                        </div>
-                    </div>
-                    <div class="hero-visual">
-                        <div class="device-preview">
-                            <div class="device-card-preview">
-                                <div class="device-status active"></div>
-                                <h4>GPS Tracker Pro</h4>
-                                <p>Live Location Tracking</p>
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -168,7 +159,7 @@
                         <div class="map-placeholder">
                             <div class="map-header">
                                 <h3>🗺️ GPS Device Locations</h3>
-                                <p>Real-time device tracking map</p>
+                                <p>Real-time device tracking map (click markers to view on Google Maps)</p>
                             </div>
                             <div class="map-grid" id="map-grid">
                                 <!-- GPS location markers will be populated by JavaScript -->
@@ -206,6 +197,17 @@
         <div class="message-content">
             <p id="message-text"></p>
             <button class="btn btn--sm" onclick="hideMessage()">Close</button>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirm-dialog" class="message-overlay hidden">
+        <div class="message-content">
+            <p id="confirm-text"></p>
+            <div class="dialog-actions">
+                <button class="btn btn--danger btn--sm" id="confirm-yes">Yes, Delete</button>
+                <button class="btn btn--outline btn--sm" id="confirm-no" onclick="hideConfirmDialog()">Cancel</button>
+            </div>
         </div>
     </div>
 
